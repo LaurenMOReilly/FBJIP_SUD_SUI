@@ -7,10 +7,10 @@
 #Read in FBJIP files
 library(haven)
 
-#Dataset from Steve
+#Dataset from data manager
 fbjip = read_sas("C:/Users/loreilly/OneDrive - Indiana University/PostDoc/Projects/Aalsma Lab/FBJIP/fbjip_15aug22.sas7bdat")
 
-#Processed dataset Casey used for AAS 2022 presentation
+#Processed dataset researcher
 fbjip_processed = read_spss("C:/Users/loreilly/OneDrive - Indiana University/PostDoc/Projects/Aalsma Lab/FBJIP/CP_AAS_FBJIB_Processed.sav")
 
 #Updated dataset with KCAT processing (i.e., time, # items administered) variables
@@ -309,45 +309,8 @@ table(fbjip_impute[, c("ls_score_YOUt1","C_SS_Cat_t1")])
 #-----------------------------------------------
 #Mediation Models with covariates
 #-----------------------------------------------
+library(lavaan)
 #---------Model 1: Parental Support --> SUI
-#Parental support and youth suicidality - med: life satisfaction
-ps_sui_ls_cov = '
-#Direct effects
-ls_score_YOUt1 ~ a * pss_mean_YOUt1 + raceDi + age_15 + age_16 + age_17 + gender_YOUt1 + ethnicity_YOUt1 + fas_YOUt1 
-C_SS_t1 ~ c * pss_mean_YOUt1 + b * ls_score_YOUt1 + raceDi + age_15 + age_16 + age_17 + gender_YOUt1 + ethnicity_YOUt1 + fas_YOUt1 
-
-#Indirect effect
-indirect := a * b
-
-#Total effect (c+indirect)
-total := c + indirect
-'
-
-model_ps_sui_ls_cov = sem(ps_sui_ls_cov, data=fbjip_impute, se="bootstrap", bootstrap=500)
-summary(model_ps_sui_ls_cov, standardized=TRUE, fit.measures=TRUE)
-
-semPaths(model_ps_sui_ls_cov, whatLabels = "est", style="lisrel", intercepts = FALSE)
-
-
-#Parental support and youth substance use - med: life satisfaction
-ps_sud_ls_cov = '
-#Direct effects
-ls_score_YOUt1 ~ a * pss_mean_YOUt1 + raceDi + age_15 + age_16 + age_17 + gender_YOUt1 + ethnicity_YOUt1 + fas_YOUt1 
-SUD_t1 ~ c * pss_mean_YOUt1 + b * ls_score_YOUt1 + raceDi + age_15 + age_16 + age_17 + gender_YOUt1 + ethnicity_YOUt1 + fas_YOUt1
-
-#Indirect effect
-indirect := a * b
-
-#Total effect (c+indirect)
-total := c + indirect
-'
-
-model_ps_sud_ls_cov = sem(ps_sud_ls_cov, data=fbjip_impute, se="bootstrap", bootstrap=500)
-summary(model_ps_sud_ls_cov, standardized=TRUE, fit.measures=TRUE)
-
-semPaths(model_ps_sud_ls_cov, whatLabels = "est", style="lisrel", intercepts = FALSE)
-
-
 #Parental support and youth suicidality - med: hopelessness
 ps_sui_h_cov = '
 #Direct effects
@@ -363,6 +326,7 @@ total := c + indirect
 
 model_ps_sui_h_cov = sem(ps_sui_h_cov, data=fbjip_impute, se="bootstrap", bootstrap=500)
 summary(model_ps_sui_h_cov, standardized=TRUE, fit.measures=TRUE)
+standardizedsolution(model_ps_sui_h_cov, type="std.all", se=TRUE) #Standardized SE
 
 semPaths(model_ps_sui_h_cov, whatLabels = "est", style="lisrel", intercepts = FALSE)
 
@@ -382,50 +346,12 @@ total := c + indirect
 
 model_ps_sud_h_cov = sem(ps_sud_h_cov, data=fbjip_impute, se="bootstrap", bootstrap=500)
 summary(model_ps_sud_h_cov, standardized=TRUE, fit.measures=TRUE)
+standardizedsolution(model_ps_sud_h_cov, type="std.all", se=TRUE) #Standardized SE
 
 semPaths(model_ps_sud_h_cov, whatLabels = "est", style="lisrel", intercepts = FALSE)
 
 
 #---------Model 2: Parental Monitoring --> SUI
-#Parental monitoring and youth suicidality - med: life satisfaction
-#To help with model fit, combine SUD categories 2 + 3 and SS categories 2 + 3
-pm_sui_ls_cov = '
-#Direct effects
-ls_score_YOUt1 ~ a * PMS_altered_YOUt1 + raceDi + age_15 + age_16 + age_17 + gender_YOUt1 + ethnicity_YOUt1 + fas_YOUt1 
-C_SS_t1 ~ c * PMS_altered_YOUt1 + b * ls_score_YOUt1 + raceDi + age_15 + age_16 + age_17 + gender_YOUt1 + ethnicity_YOUt1 + fas_YOUt1 
-
-#Indirect effect
-indirect := a * b
-
-#Total effect (c+indirect)
-total := c + indirect
-'
-
-model_pm_sui_ls_cov = sem(pm_sui_ls_cov, data=fbjip_impute, se="bootstrap", bootstrap=500)
-summary(model_pm_sui_ls_cov, standardized=TRUE, fit.measures=TRUE)
-
-semPaths(model_pm_sui_ls_cov, whatLabels = "est", style="lisrel", intercepts = FALSE)
-
-
-#Parental monitoring and youth substance use - med: life satisfaction
-pm_sud_ls_cov = '
-#Direct effects
-ls_score_YOUt1 ~ a * PMS_altered_YOUt1 + raceDi + age_15 + age_16 + age_17 + gender_YOUt1 + ethnicity_YOUt1 + fas_YOUt1 
-SUD_t1 ~ c * PMS_altered_YOUt1 + b * ls_score_YOUt1 + raceDi + age_15 + age_16 + age_17 + gender_YOUt1 + ethnicity_YOUt1 + fas_YOUt1 
-
-#Indirect effect
-indirect := a * b
-
-#Total effect (c+indirect)
-total := c + indirect
-'
-
-model_pm_sud_ls_cov = sem(pm_sud_ls_cov, data=fbjip_impute, se="bootstrap", bootstrap=500)
-summary(model_pm_sud_ls_cov, standardized=TRUE, fit.measures=TRUE)
-
-semPaths(model_pm_sud_ls_cov, whatLabels = "est", style="lisrel", intercepts = FALSE)
-
-
 #Parental monitoring and youth suicidality - med: hopelessness
 pm_sui_h_cov = '
 #Direct effects
@@ -441,6 +367,7 @@ total := c + indirect
 
 model_pm_sui_h_cov = sem(pm_sui_h_cov, data=fbjip_impute, se="bootstrap", bootstrap=500)
 summary(model_pm_sui_h_cov, standardized=TRUE, fit.measures=TRUE)
+standardizedsolution(model_pm_sui_h_cov, type="std.all", se=TRUE) #Standardized SE
 
 semPaths(model_pm_sui_h_cov, whatLabels = "est", style="lisrel", intercepts = FALSE)
 
@@ -460,9 +387,6 @@ total := c + indirect
 
 model_pm_sud_h_cov = sem(pm_sud_h_cov, data=fbjip_impute, se="bootstrap", bootstrap=500)
 summary(model_pm_sud_h_cov, standardized=TRUE, fit.measures=TRUE)
+standardizedsolution(model_pm_sud_h_cov, type="std.all", se=TRUE) #Standardized SE
 
 semPaths(model_pm_sud_h_cov, whatLabels = "est", style="lisrel", intercepts = FALSE)
-
-
-
-
